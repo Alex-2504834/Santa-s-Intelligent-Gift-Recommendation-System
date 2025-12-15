@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from recomender import recomendGift
+from recomender import recomendGift, getChildData
 
 import json
 import random
@@ -128,6 +128,7 @@ class App(ctk.CTk):
         ctk.set_default_color_theme(self.currentColorTheme)
         self.saveSettings()
 
+print(getChildData("id", "58"))
 
 if __name__ == "__main__":
     app = App()
