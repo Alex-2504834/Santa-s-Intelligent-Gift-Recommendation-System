@@ -63,7 +63,7 @@ class App(ctk.CTk):
         self.currentColorTheme: str = self.appSettings.colorTheme
 
         self.title("Santa's Intelligent Gift Recommendation System")
-        self.geometry(f"{500}x{500}")
+        self.geometry(f"{700}x{500}")
 
 
         self.tabView: ctk.CTkTabview = ctk.CTkTabview(self)
