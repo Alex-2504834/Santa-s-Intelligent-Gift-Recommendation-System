@@ -3,61 +3,51 @@ import sqlite3
 con = sqlite3.connect("./DB/childrensData.db")
 cur = con.cursor()
 
+# fetch and flatten history (handles comma-separated cells)
 cur.execute("SELECT DISTINCT last_year_gift FROM history;")
+rows = cur.fetchall()
+history = []
+for row in rows:
+    val = row[0]
+    if val is None:
+        continue
+    parts = [p.strip() for p in str(val).split(',') if p.strip()]
+    history.extend(parts)
+# keep order, remove duplicates
+history = list(dict.fromkeys(history))
 
-history:list = cur.fetchall()
-
-strHistory = str(history).replace("(", "")
-strHistory = strHistory.replace(")", "")
-strHistory = strHistory.replace("[", "")
-strHistory = strHistory.replace("]", "")
-strHistory = strHistory.replace(",,", ",")
-strHistory = strHistory.replace("'", "")
-
-history = strHistory.split(",")
-
+# fetch wishlists
 cur.execute("SELECT wishlist_items FROM wishlist;")
+rows = cur.fetchall()
+formatted_wishlist = []
+for row in rows:
+    val = row[0]
+    if val is None:
+        continue
+    parts = [p.strip() for p in str(val).split(',') if p.strip()]
+    for gift in parts:
+        if gift not in formatted_wishlist:
+            formatted_wishlist.append(gift)
 
-wishlists:list = cur.fetchall()
+# remove gifts already in history
+formatted_wishlist = [g for g in formatted_wishlist if g not in history]
 
-formatedWishlist:list = []
+# build final gift list with dedupe
+seen = set()
+gift_list = []
+for g in history + formatted_wishlist:
+    g = g.strip()
+    if not g or g in seen:
+        continue
+    seen.add(g)
+    gift_list.append(g)
 
-for wish in wishlists:
-    wish = str(wishlists)
-    wish = wish.replace("'", "")
-    wish = wish.replace("(", "")
-    wish = wish.replace(")", "")
-    wish = wish.replace("[", "")
-    wish = wish.replace("]", "")
-    gifts:list = wish.split(",")
-    for gift in gifts:
-        if not (gift in formatedWishlist):
-            formatedWishlist.append(gift)
-
-for index, gift in enumerate(formatedWishlist):
-    if str(gift).lstrip() in str(history).lstrip():
-        formatedWishlist.pop(index)
-
-giftList = history + formatedWishlist
-
-tempGiftList = []
-
-for index, gift in enumerate(giftList):
-    print(gift)
-    giftList[index] = str(gift).lstrip()
-    if gift == "":
-        giftList.pop(index)
-    if gift in tempGiftList:
-        giftList.pop(index)
-    else:
-        tempGiftList.append(gift)
-
-print(giftList)
+print(gift_list)
 
 # get age limits and categorys
 cur.execute("CREATE TABLE IF NOT EXISTS gifts (gift, age_limit, category);")
 
-for gift in giftList:
+for gift in gift_list:
     print("\n" + gift)
     while True:
         try:
@@ -77,7 +67,7 @@ print(cur.fetchall())
 # add gifts to gifts table
 cur.execute("CREATE TABLE IF NOT EXISTS gifts (gift, age_limit, category);")
 
-for gift in giftList:
+for gift in gift_list:
     print("\n" + gift)
     while True:
         try:
