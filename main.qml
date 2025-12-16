@@ -42,10 +42,10 @@ Rectangle {
             color: "transparent"
 
             Repeater {
-                model: Math.ceil(tinselContainer.width / 200) // Adjust 200 to the width of your image
+                model: Math.ceil(tinselContainer.width / 200) 
                 delegate: Image {
                     source: "images/AdobeStock_1023592969.png"
-                    width: 1280 // Set this to the actual width of your image
+                    width: 1280
                     height: tinselContainer.height
                     smooth: false
                 }
